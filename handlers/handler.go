@@ -1,14 +1,14 @@
 package handlers
 
-import(
-	"log"
-	"net/http"
+import (
 	"github.com/gorilla/mux"
 	"github.com/shashaneRanasinghe/Go-Vision/routes"
+	"log"
+	"net/http"
 	"time"
-
 )
 
+//the RequestHandler function creates the router and handles the requests
 func RequestHandler() {
 	router := mux.NewRouter()
 
@@ -19,12 +19,12 @@ func RequestHandler() {
 		WriteTimeout: 5 * time.Second,
 	}
 
-	router.HandleFunc("/classify",routes.Classify).
-	Methods("POST").
-	Headers("content-type", "application/json")
+	router.HandleFunc("/classify", routes.Classify).
+		Methods("POST").
+		Headers("content-type", "application/json")
 
 	err := server.ListenAndServe()
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 }

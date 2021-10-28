@@ -1,4 +1,4 @@
-package Services
+package services
 
 import (
 	"log"
@@ -8,42 +8,44 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rekognition"
+	"github.com/shashaneRanasinghe/Go-Vision/entities"
+	"github.com/shashaneRanasinghe/Go-Vision/interfaces"
 )
 
-type DetectLabelInput struct{
-	Image []byte
-	MaxLabels int64
-	MinConfidence float64
+type AWSservice struct{}
+
+func NewAWSService() interfaces.AWSService {
+	return &AWSservice{}
 }
 
-func (d *DetectLabelInput) DetectLabels() (*rekognition.DetectLabelsOutput,error){
-
+// the DetectLabels function calls the AWS API and gets the labels corresponding to the
+// image given
+func (a *AWSservice) DetectLabels(dlInput entities.DetectLabelInput) (*rekognition.DetectLabelsOutput, error) {
 	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(os.Getenv("AWS_REGION")),
+		Region: aws.String(os.Getenv("AWS_REGION")),
 		Credentials: credentials.NewSharedCredentials(os.Getenv("AWS_CREDENTIALS_FILEPATH"),
-		os.Getenv("AWS_PROFILE")),
+			os.Getenv("AWS_PROFILE")),
 	})
-	
-	if err != nil{
-		log.Printf("%v",err)
-		return nil,err
+
+	if err != nil {
+		log.Printf("%v", err)
+		return nil, err
 	}
 
 	svc := rekognition.New(sess)
 
 	input := &rekognition.DetectLabelsInput{
 		Image: &rekognition.Image{
-				Bytes: d.Image,
+			Bytes: dlInput.Image,
 		},
-		MaxLabels:     aws.Int64(100),
-		MinConfidence: aws.Float64(75.000000),
+		MaxLabels:     aws.Int64(dlInput.MaxLabels),
+		MinConfidence: aws.Float64(dlInput.MinConfidence),
 	}
 
-
-	results,err := svc.DetectLabels(input)
-	if err != nil{
-		log.Printf("%v",err)
-		return nil,err
+	results, err := svc.DetectLabels(input)
+	if err != nil {
+		log.Printf("%v", err)
+		return nil, err
 	}
-	return results,nil
+	return results, nil
 }

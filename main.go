@@ -7,12 +7,13 @@ import (
 	"github.com/shashaneRanasinghe/Go-Vision/handlers"
 )
 
+
 func main() {
+
 	err := godotenv.Load(".env")
-	if err != nil{
-		log.Printf("%v",err)
+	if err != nil {
+		log.Printf("%v", err)
 	}
 	handlers.RequestHandler()
 
 }
-

@@ -1,22 +1,28 @@
-package Models
+package models
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strconv"
 
+	"github.com/shashaneRanasinghe/Go-Vision/entities"
+	"github.com/shashaneRanasinghe/Go-Vision/interfaces"
 	"github.com/shashaneRanasinghe/Go-Vision/responses"
-	"github.com/shashaneRanasinghe/Go-Vision/services"
 )
 
-type Image struct {
-	Image []byte
+type Model struct {
+}
+
+var aws interfaces.AWSService
+
+func NewModelService(service interfaces.AWSService) interfaces.ModelService {
+	aws = service
+	return &Model{}
 }
 
 //the image label creates the parameters needed to call the detectLabel method
 // in the aws service
-func (i *Image) ImageLabel() responses.ClassifyResponse {
+func (m *Model) ImageLabel(image []byte) responses.ClassifyResponse {
 	var labelList []string
 	response := responses.ClassifyResponse{}
 
@@ -35,15 +41,13 @@ func (i *Image) ImageLabel() responses.ClassifyResponse {
 
 	}
 
-	detectLabelInput := services.DetectLabelInput{
-		Image:         i.Image,
+	detectLabelInput := entities.DetectLabelInput{
+		Image:         image,
 		MaxLabels:     maxLabels,
 		MinConfidence: minConfidence,
 	}
-	fmt.Println("Testing.......")
 
-	results, err := detectLabelInput.DetectLabels()
-
+	results, err := aws.DetectLabels(detectLabelInput)
 
 	if err != nil {
 		response.Error = "Unable to process the request"
@@ -54,6 +58,6 @@ func (i *Image) ImageLabel() responses.ClassifyResponse {
 		labelList = append(labelList, *item.Name)
 	}
 	response.Labels = labelList
-
+	log.Printf("%v", response)
 	return response
 }
